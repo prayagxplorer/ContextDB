@@ -45,18 +45,14 @@ The database acts as the long-term memory of the project. Important knowledge is
 
 The core schema is centered around:
 
-- User
-- Project
-- Agent
-- Session
-- Memory
-- Tag
-- Requirement
-- Architecture Decision
-- Task
-- Bug
-- Solution
-- Memory relationships
+- `USERS` — developers and stakeholders
+- `AGENTS` — AI models operating sessions and tasks
+- `PROJECTS` — bounded software-engineering initiatives
+- `SESSIONS` — a user's interaction with an agent on a project
+- `TASKS` — work items, optionally assigned to an agent
+- `MEMORIES` — reusable requirements, decisions, constraints, bugs, and findings
+- `TAGS` — controlled labels for memory retrieval
+- `MEMORY_TAGS` — the many-to-many memory/tag relationship
 
 A memory is not just a conversation log; it is a reusable piece of project knowledge.
 
