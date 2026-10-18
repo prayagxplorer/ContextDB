@@ -1,0 +1,10 @@
+{
+  "USERS": 10,
+  "AGENTS": 10,
+  "PROJECTS": 10,
+  "SESSIONS": 12,
+  "TASKS": 13,
+  "MEMORIES": 16,
+  "TAGS": 10,
+  "MEMORY_TAGS": 21
+}

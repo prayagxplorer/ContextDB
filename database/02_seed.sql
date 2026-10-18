@@ -1,3 +1,13 @@
+-- Clean schema only; never reseed a populated database.
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+DECLARE v_count NUMBER;
+BEGIN
+ SELECT (SELECT COUNT(*) FROM users)+(SELECT COUNT(*) FROM agents)+(SELECT COUNT(*) FROM projects)+
+ (SELECT COUNT(*) FROM sessions)+(SELECT COUNT(*) FROM tasks)+(SELECT COUNT(*) FROM memories)+
+ (SELECT COUNT(*) FROM tags)+(SELECT COUNT(*) FROM memory_tags) INTO v_count FROM dual;
+ IF v_count>0 THEN raise_application_error(-20010,'Seed refused: application tables are not empty'); END IF;
+END;
+/
 INSERT INTO users(user_id,name,email,role) VALUES (1,'Asha Rao','asha@contextdb.dev','ARCHITECT');
 INSERT INTO users(user_id,name,email,role) VALUES (2,'Ravi Shah','ravi@contextdb.dev','DEVELOPER');
 INSERT INTO users(user_id,name,email,role) VALUES (3,'Meera Iyer','meera@contextdb.dev','QA');

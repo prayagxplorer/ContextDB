@@ -1,0 +1,517 @@
+=== PART A: CRUD DEMONSTRATION ===
+INSERT - before and after memory creation
+
+MEMORIES_BEFORE
+---------------
+	     16
+
+1 row selected.
+
+
+1 row created.
+
+
+1 row created.
+
+
+ MEMORY_ID
+----------
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+IMPORTANCE
+----------
+	45
+CRUD demo memory
+	 4
+
+     10001
+CRUD demo memory
+	 5
+
+
+2 rows selected.
+
+UPDATE - task and memory before/after
+
+   TASK_ID STATUS			  COMPLETED_AT
+---------- ------------------------------ ---------------------------------------------------------------------------
+	12 COMPLETED			  15-OCT-26 12.21.10.759957 AM
+
+1 row selected.
+
+
+1 row updated.
+
+
+1 row updated.
+
+
+   TASK_ID STATUS			  COMPLETED_AT
+---------- ------------------------------ ---------------------------------------------------------------------------
+	12 COMPLETED			  15-OCT-26 12.21.10.759957 AM
+
+1 row selected.
+
+
+ MEMORY_ID
+----------
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+IMPORTANCE
+----------
+	45
+CRUD demo memory
+	 5
+
+     10001
+CRUD demo memory
+	 5
+
+
+2 rows selected.
+
+DELETE - cascade integrity demonstration
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+TEMP_MAPPINGS_BEFORE
+--------------------
+		   1
+
+1 row selected.
+
+
+1 row deleted.
+
+
+TEMP_MAPPINGS_AFTER
+-------------------
+		  0
+
+1 row selected.
+
+
+1 row deleted.
+
+
+Rollback complete.
+
+Demonstration changes rolled back; original data preserved.
+=== PART B: FIFTEEN MEANINGFUL QUERIES ===
+Q1 High importance decisions and constraints for ContextDB
+
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+MEMORY_TYPE				 IMPORTANCE CREATED_AT
+---------------------------------------- ---------- ---------------------------------------------------------------------------
+Oracle is the system of record
+DECISION					  5 15-OCT-26 12.21.10.638719 AM
+
+Context score formula
+DECISION					  5 14-OCT-26 06.51.10.641359 PM
+
+
+2 rows selected.
+
+Q2 Open/in-progress high-priority tasks
+
+   TASK_ID
+----------
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+PRIORITY	     STATUS
+-------------------- ------------------------------
+	 8
+Triage escalations
+HIGH		     OPEN
+
+	11
+Redact clauses
+HIGH		     OPEN
+
+	 3
+Add payment ledger
+CRITICAL	     OPEN
+
+	 2
+Build context ranking
+CRITICAL	     IN_PROGRESS
+
+	 7
+Rotate API keys
+CRITICAL	     IN_PROGRESS
+
+
+5 rows selected.
+
+Q3 Keyword search across title and CLOB content
+
+no rows selected
+
+Q4 Sessions with user agent and project
+
+SESSION_ID NAME
+---------- ----------------------------------------------------------------------------------------------------
+AGENT_NAME
+----------------------------------------------------------------------------------------------------
+PROJECT_NAME																	       STATUS
+------------------------------------------------------------------------------------------------------------------------------------------------------ ------------------------------
+	 1 Asha Rao
+Claude Architect
+ContextDB																	       COMPLETED
+
+	 2 Ravi Shah
+Atlas
+ContextDB																	       COMPLETED
+
+	 3 Dev Patel
+Gemini Planner
+PayFlow 																	       COMPLETED
+
+	 4 Meera Iyer
+Test Sage
+ClinicSync																	       ACTIVE
+
+	 5 Omar Khan
+Code Falcon
+FleetWatch																	       COMPLETED
+
+	 6 Kiran Bose
+Schema Smith
+LearnSpace																	       COMPLETED
+
+	 7 Sara Ali
+Secure Owl
+InventoryHub																	       COMPLETED
+
+	 8 Vikram Sen
+DeepSeek Reviewer
+SupportDesk																	       ACTIVE
+
+	 9 Nina Das
+Query Scout
+GreenGrid																	       ABORTED
+
+	10 Lina Roy
+Docs Weaver
+TravelMate																	       COMPLETED
+
+	11 Asha Rao
+Claude Architect
+ContextDB																	       ACTIVE
+
+	12 Dev Patel
+Atlas
+PayFlow 																	       ACTIVE
+
+
+12 rows selected.
+
+Q5 Memories and tags
+
+ MEMORY_ID
+----------
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TAG_NAME
+------------------------------------------------------------
+	 1
+Oracle is the system of record
+architecture
+
+	 1
+Oracle is the system of record
+oracle
+
+	 2
+Context score formula
+api
+
+	 2
+Context score formula
+architecture
+
+	 3
+Payment consistency
+database
+
+	 3
+Payment consistency
+payments
+
+	 4
+Timezone collision bug
+bug
+
+	 5
+Telemetry batching
+performance
+
+	 6
+Grade export requirement
+requirements
+
+	 7
+Key rotation rule
+security
+
+	 8
+Escalation SLA
+requirements
+
+	 9
+Archive finding
+security
+
+	10
+Travel policy decision
+architecture
+
+	11
+PII redaction
+security
+
+	12
+Parameterized SQL only
+api
+
+	12
+Parameterized SQL only
+security
+
+	13
+Identity columns
+oracle
+
+	14
+Settlement retry
+payments
+
+	15
+Sensor requirement
+performance
+
+	15
+Sensor requirement
+requirements
+
+     10001
+CRUD demo memory
+testing
+
+
+21 rows selected.
+
+Q6 Tasks and produced architectural or bug memories
+
+PROJECT_NAME
+------------------------------------------------------------------------------------------------------------------------------------------------------
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+MEMORY_TYPE
+----------------------------------------
+ContextDB
+Design schema
+Oracle is the system of record
+DECISION
+
+ContextDB
+Build context ranking
+Context score formula
+DECISION
+
+ClinicSync
+Validate appointments
+Timezone collision bug
+BUG
+
+TravelMate
+Policy cache
+Travel policy decision
+DECISION
+
+
+4 rows selected.
+
+Q7 All agents including unassigned
+
+AGENT_NAME											     ASSIGNED_TASKS
+---------------------------------------------------------------------------------------------------- --------------
+Atlas														  1
+Claude Architect												  2
+Code Falcon													  1
+DeepSeek Reviewer												  1
+Docs Weaver													  2
+Gemini Planner													  1
+Query Scout													  1
+Schema Smith													  1
+Secure Owl													  1
+Test Sage													  1
+
+10 rows selected.
+
+Q8 Memory type counts and average importance
+
+MEMORY_TYPE				 TOTAL_MEMORIES AVG_IMPORTANCE
+---------------------------------------- -------------- --------------
+FINDING 					      3 	  3.67
+DECISION					      3 	  4.67
+RULE						      3 	     5
+SOLUTION					      2 	     4
+REQUIREMENT					      2 	     4
+CONSTRAINT					      2 	   4.5
+BUG						      1 	     4
+
+7 rows selected.
+
+Q9 Completed versus total tasks by project
+
+PROJECT_NAME																	       TOTAL_TASKS COMPLETED_TASKS
+------------------------------------------------------------------------------------------------------------------------------------------------------ ----------- ---------------
+ClinicSync																			 1		 0
+ContextDB																			 3		 2
+FleetWatch																			 1		 0
+GreenGrid																			 1		 1
+InventoryHub																			 1		 0
+LearnSpace																			 1		 1
+LegalLens																			 2		 0
+PayFlow 																			 1		 0
+SupportDesk																			 1		 0
+TravelMate																			 1		 0
+
+10 rows selected.
+
+Q10 Tags used at least twice
+
+TAG_NAME						     MEMORY_COUNT
+------------------------------------------------------------ ------------
+security								4
+requirements								3
+architecture								3
+performance								2
+api									2
+oracle									2
+payments								2
+
+7 rows selected.
+
+Q11 Sessions and generated memories by model
+
+MODEL_NAME											     SESSIONS_OPERATED MEMORIES_GENERATED
+---------------------------------------------------------------------------------------------------- ----------------- ------------------
+Claude-3.5-Sonnet												     2			4
+Claude-3.7-Sonnet												     1			1
+DeepSeek-R1													     1			1
+GPT-4.1 													     1			2
+GPT-4o														     2			2
+GPT-4o-mini													     1			1
+Gemini-2.0-Flash												     1			1
+Gemini-2.5-Pro													     1			1
+Llama-3.3-70B													     1			1
+o3-mini 													     1			1
+
+10 rows selected.
+
+Q12 Memories above their project average
+
+ MEMORY_ID
+----------
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+IMPORTANCE PROJECT_NAME
+---------- ------------------------------------------------------------------------------------------------------------------------------------------------------
+	 1
+Oracle is the system of record
+	 5 ContextDB
+
+	 2
+Context score formula
+	 5 ContextDB
+
+	12
+Parameterized SQL only
+	 5 ContextDB
+
+	15
+Sensor requirement
+	 4 FleetWatch
+
+     10001
+CRUD demo memory
+	 5 ContextDB
+
+
+5 rows selected.
+
+Q13 Tasks without a memory
+
+   TASK_ID
+----------
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	13
+Create retention policy
+
+
+1 row selected.
+
+Q14 Developers who worked on projects with critical tasks
+
+NAME
+----------------------------------------------------------------------------------------------------
+EMAIL
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Asha Rao
+asha@contextdb.dev
+
+Ravi Shah
+ravi@contextdb.dev
+
+Dev Patel
+dev@contextdb.dev
+
+Sara Ali
+sara@contextdb.dev
+
+
+4 rows selected.
+
+Q15 Ranked context for ContextDB
+
+ MEMORY_ID
+----------
+TITLE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+IMPORTANCE  TAG_COUNT RELEVANCE_SCORE
+---------- ---------- ---------------
+	 1
+Oracle is the system of record
+	 5	    2		   60
+
+	 2
+Context score formula
+	 5	    2		   60
+
+	12
+Parameterized SQL only
+	 5	    2		   60
+
+     10001
+CRUD demo memory
+	 5	    1		   55
+
+	13
+Identity columns
+	 3	    1		   35
+
+
+5 rows selected.

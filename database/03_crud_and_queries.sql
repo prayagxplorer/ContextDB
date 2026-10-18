@@ -1,3 +1,7 @@
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+VARIABLE demo_memory NUMBER
+VARIABLE temp_memory NUMBER
+VARIABLE temp_tag NUMBER
 SET PAGESIZE 100
 SET LINESIZE 200
 SET FEEDBACK ON
@@ -5,24 +9,25 @@ SET LONG 10000
 PROMPT === PART A: CRUD DEMONSTRATION ===
 PROMPT INSERT - before and after memory creation
 SELECT COUNT(*) AS memories_before FROM memories;
-INSERT INTO memories(memory_id,project_id,session_id,task_id,title,content,memory_type,importance) VALUES(10001,1,11,12,'CRUD demo memory','This inserted memory proves application knowledge can be persisted.','FINDING',4);
-INSERT INTO memory_tags(memory_id,tag_id) VALUES(10001,8);
+INSERT INTO memories(project_id,session_id,task_id,title,content,memory_type,importance) VALUES(1,11,12,'CRUD demo memory','This inserted memory proves application knowledge can be persisted.','FINDING',4) RETURNING memory_id INTO :demo_memory;
+INSERT INTO memory_tags(memory_id,tag_id) VALUES(:demo_memory,8);
 SELECT memory_id,title,importance FROM memories WHERE title='CRUD demo memory';
 PROMPT UPDATE - task and memory before/after
 SELECT task_id,status,completed_at FROM tasks WHERE task_id=12;
 UPDATE tasks SET status='COMPLETED',completed_at=CURRENT_TIMESTAMP WHERE task_id=12;
-UPDATE memories SET importance=5,updated_at=CURRENT_TIMESTAMP WHERE memory_id=10001;
+UPDATE memories SET importance=5,updated_at=CURRENT_TIMESTAMP WHERE memory_id=:demo_memory;
 SELECT task_id,status,completed_at FROM tasks WHERE task_id=12;
 SELECT memory_id,title,importance FROM memories WHERE title='CRUD demo memory';
 PROMPT DELETE - cascade integrity demonstration
-INSERT INTO tags(tag_id,tag_name) VALUES(10001,'temporary-crud-tag');
-INSERT INTO memories(memory_id,project_id,title,content,memory_type,importance) VALUES(10002,1,'Temporary CRUD memory','This row is deleted with its mapping.','FINDING',1);
-INSERT INTO memory_tags VALUES(10002,10001);
-SELECT COUNT(*) AS temp_mappings_before FROM memory_tags WHERE tag_id=10001;
-DELETE FROM memories WHERE title='Temporary CRUD memory';
-SELECT COUNT(*) AS temp_mappings_after FROM memory_tags WHERE tag_id=10001;
-DELETE FROM tags WHERE tag_name='temporary-crud-tag';
-COMMIT;
+INSERT INTO tags(tag_name) VALUES('temporary-crud-'||SYS_GUID()) RETURNING tag_id INTO :temp_tag;
+INSERT INTO memories(project_id,title,content,memory_type,importance) VALUES(1,'Temporary CRUD memory','This row is deleted with its mapping.','FINDING',1) RETURNING memory_id INTO :temp_memory;
+INSERT INTO memory_tags VALUES(:temp_memory,:temp_tag);
+SELECT COUNT(*) AS temp_mappings_before FROM memory_tags WHERE tag_id=:temp_tag;
+DELETE FROM memories WHERE memory_id=:temp_memory;
+SELECT COUNT(*) AS temp_mappings_after FROM memory_tags WHERE tag_id=:temp_tag;
+DELETE FROM tags WHERE tag_id=:temp_tag;
+ROLLBACK;
+PROMPT Demonstration changes rolled back; original data preserved.
 PROMPT === PART B: FIFTEEN MEANINGFUL QUERIES ===
 PROMPT Q1 High importance decisions and constraints for ContextDB
 SELECT title,memory_type,importance,created_at FROM memories WHERE project_id=1 AND memory_type IN ('DECISION','CONSTRAINT') AND importance>=4 ORDER BY importance DESC,created_at DESC;

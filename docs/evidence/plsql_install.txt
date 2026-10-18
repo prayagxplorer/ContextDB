@@ -1,0 +1,36 @@
+
+Procedure created.
+
+
+Procedure created.
+
+
+Function created.
+
+
+Function created.
+
+
+Procedure created.
+
+
+Trigger created.
+
+
+Trigger created.
+
+
+PL/SQL procedure successfully completed.
+
+
+OBJECT_NAME			 OBJECT_TYPE  STATUS
+-------------------------------- ------------ ----------
+FN_MEMORY_RELEVANCE		 FUNCTION     VALID
+FN_PROJECT_OPEN_TASK_COUNT	 FUNCTION     VALID
+SP_ASSIGN_TASK			 PROCEDURE    VALID
+SP_PROJECT_TASK_REPORT		 PROCEDURE    VALID
+SP_UPDATE_TASK_STATUS		 PROCEDURE    VALID
+TRG_MEMORIES_UPDATED_AT 	 TRIGGER      VALID
+TRG_TASKS_COMPLETION_STAMP	 TRIGGER      VALID
+
+7 rows selected.

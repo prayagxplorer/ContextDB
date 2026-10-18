@@ -1,0 +1,8 @@
+Primary text: #1d2523 on #f6f7f4 = 14.56:1 (normal text AA threshold 4.5:1)
+Secondary text: #65716c on #f6f7f4 = 4.73:1 (normal text AA threshold 4.5:1)
+Sidebar text: #56635d on #f0f3ef = 5.62:1 (normal text AA threshold 4.5:1)
+Button text: #ffffff on #176b5b = 6.38:1 (normal text AA threshold 4.5:1)
+Success badge: #28624b on #edf5ee = 6.43:1 (normal text AA threshold 4.5:1)
+Warning badge: #7a5b23 on #faf4e8 = 5.73:1 (normal text AA threshold 4.5:1)
+Danger badge: #943f35 on #fcf0ee = 6.23:1 (normal text AA threshold 4.5:1)
+Static palette calculations only; not computed browser styles or a complete accessibility audit.

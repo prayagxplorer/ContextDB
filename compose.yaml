@@ -1,0 +1,22 @@
+# Optional NEW instance. Existing oracle-db users should use docker start oracle-db.
+# This configuration does not attach, recreate, or delete the existing oracle-data volume.
+services:
+  oracle:
+    image: gvenzl/oracle-free:23.26.3-slim
+    ports:
+      - "127.0.0.1:${ORACLE_PORT:-1521}:1521"
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_ADMIN_PASSWORD:?Set ORACLE_ADMIN_PASSWORD in root .env}
+      APP_USER: ${ORACLE_APP_USER:-contextdb}
+      APP_USER_PASSWORD: ${ORACLE_APP_PASSWORD:?Set ORACLE_APP_PASSWORD in root .env}
+    volumes:
+      - contextdb-oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      start_period: 120s
+      retries: 30
+    restart: unless-stopped
+volumes:
+  contextdb-oracle-data:

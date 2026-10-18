@@ -1,0 +1,15 @@
+PASS: repeated 01_schema refused existing data as expected.
+DECLARE v_count NUMBER;
+*
+ERROR at line 1:
+ORA-20010: Schema is not empty. Use 04_plsql_programs.sql for upgrades.
+ORA-06512: at line 4
+
+
+
+PASS: repeated 02_seed refused existing data as expected.
+DECLARE v_count NUMBER;
+*
+ERROR at line 1:
+ORA-20010: Seed refused: application tables are not empty
+ORA-06512: at line 6

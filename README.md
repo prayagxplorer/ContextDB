@@ -1,176 +1,162 @@
-# Persistent Project Memory & Context Management System
+# ContextDB
 
-A database-backed memory layer for AI-assisted software engineering.
+Persistent Project Memory & Context Management System. Store project knowledge in Oracle, manage it through React, and assemble a deterministic context bundle for your next LLM conversation. No LLM key is needed and no agent execution is simulated.
 
-## Overview
+## What works
 
-Large language models have limited context windows, which makes long-running project work difficult when important decisions and technical knowledge disappear from the active conversation. This project solves that by persisting project knowledge in a relational database and retrieving it when needed.
+- Live overview, project counts and recent memory/session records.
+- Project creation, editing, details and confirmed cascading deletion.
+- Memory creation, viewing, editing and deletion; CLOB text, tags, project/task/session associations, keyword/type/importance/tag filters, sorting and pagination.
+- Tasks with priorities, assignment/unassignment, status updates, completion/reopen timestamps and linked memories.
+- Agent metadata directory with recorded tasks, sessions and related knowledge; session history and details.
+- Context Builder with transparent `importance * 10 + tag_count * 5` ranking, tie-breaking by memory ID, configurable filters and copyable prompt.
+- Oracle procedures, functions, explicit cursor, triggers, rollback demonstrations and 15 meaningful SQL queries.
 
-Instead of storing only chat history, the system stores structured project memory such as:
+## Stack and folders
 
-- requirements
-- architecture decisions
-- technical constraints
-- tasks and bugs
-- solutions and findings
-- project-specific rules
-- developer and agent context
-- session history
-
-The result is a persistent, searchable project memory that can be used to keep AI responses aligned with the real state of the project.
-
-## Core idea
-
-User / Developer
-  -> AI Agent / Application
-  -> Context Management Layer
-  -> Oracle Database
-  -> Relevant memory retrieval
-  -> Context Builder
-  -> LLM / AI Response
-
-The database acts as the long-term memory of the project. Important knowledge is stored once and retrieved later when it is relevant.
-
-## Main goals
-
-- persist project knowledge across sessions
-- support user, project, agent, and session tracking
-- store memories, requirements, tasks, bugs, and decisions
-- associate memories with tags and related records
-- support search and retrieval by keyword, project, task, and type
-- provide CRUD operations and SQL query demonstrations
-- expose a simple dashboard or API for context retrieval
-
-## Key entities
-
-The core schema is centered around:
-
-- `USERS` — developers and stakeholders
-- `AGENTS` — AI models operating sessions and tasks
-- `PROJECTS` — bounded software-engineering initiatives
-- `SESSIONS` — a user's interaction with an agent on a project
-- `TASKS` — work items, optionally assigned to an agent
-- `MEMORIES` — reusable requirements, decisions, constraints, bugs, and findings
-- `TAGS` — controlled labels for memory retrieval
-- `MEMORY_TAGS` — the many-to-many memory/tag relationship
-
-A memory is not just a conversation log; it is a reusable piece of project knowledge.
-
-## Why this matters
-
-A developer may say:
-
-> "We use PostgreSQL because payment processing requires transactional consistency. Do not switch to MongoDB without approval."
-
-Later, the AI may be asked a related question without that instruction still in context. By storing that information in the database, the AI can retrieve it and respond consistently.
-
-## Example use cases
-
-- retrieve project constraints before recommending a new technology
-- continue work from earlier sessions
-- recollect previous architectural decisions
-- track unresolved bugs and attempted solutions
-- build project-specific context before answering a technical question
-
-## Architecture
-
-This project is designed as a layered system:
-
-1. Database layer
-   - Oracle SQL / PL/SQL
-   - relational schema and constraints
-   - indexing, joins, nested queries, aggregates, transactions
-
-2. Application layer
-   - CRUD operations
-   - search and retrieval logic
-   - project memory services
-
-3. AI context layer
-   - query project knowledge
-   - build context for an LLM
-   - return relevant memories to the agent
-
-4. Frontend layer
-   - dashboard
-   - project and memory management pages
-   - search/context retrieval interface
-
-## Recommended stack
-
-- Database: Oracle Database
-- Query language: Oracle SQL / PL/SQL
-- Backend: Python + FastAPI (recommended), or similar lightweight framework
-- Frontend: React or simple HTML/CSS/JavaScript
-- AI integration: optional LLM API layered on top of context retrieval
-
-## Retrieval approach
-
-The initial version does not need advanced vector search. A practical first implementation can rank results using:
-
-- project match
-- keyword match
-- tag match
-- importance level
-- recency
-- related task or memory
-
-This keeps the system focused on relational database fundamentals while still serving as a valid project-memory layer.
-
-## Suggested project structure
+React 19 + Vite + JavaScript, Tailwind CSS 4, editable shadcn/ui-derived Radix primitives, Lucide icons; FastAPI + Pydantic + python-oracledb Thin mode; local Docker Oracle Database Free.
 
 ```text
-project-root/
-├── frontend/
-├── backend/
-├── database/
-│   ├── schema/
-│   ├── tables/
-│   ├── constraints/
-│   ├── seed/
-│   ├── queries/
-│   └── indexes/
-├── docs/
-├── README.md
-└── Persistent_Project_Memory_Context_Management_System.md
+frontend/src/       React pages, components, API client, hooks and UI tests
+backend/            FastAPI routes, request models, SQL repository and tests
+database/           Eight-table DDL, seed, queries and PL/SQL scripts
+scripts/            SQL*Plus runner, HTTP smoke test, isolated-schema verifier
+docs/               Architecture, database, API, report, demo and maintenance guide
+docs/evidence/      Actual execution captures from this implementation
 ```
 
-## Development phases
+## Quick start on this existing checkout
 
-1. Requirements and scope
-2. ER modeling
-3. Relational schema design
-4. Oracle implementation
-5. CRUD and SQL query work
-6. Backend API and search logic
-7. Frontend dashboard
-8. AI context integration
+Prerequisites: Docker, Python 3.11+ (tested with 3.14.7), Node 22.12+ (tested with 26.10.0), npm, and optionally SQL*Plus. SQL*Plus is an Oracle **client**, not the database server. Run these commands from the repository root.
 
-## Key principle
+The existing `oracle-db` container and `oracle-data` volume were preserved. Its application connection settings were moved out of source into ignored `backend/.env`, with file permissions 0600. Do not overwrite that file if it already exists.
 
-The system should store knowledge about the project, not just raw conversation logs. This makes the database useful even after earlier sessions are no longer in memory.
+```bash
+docker start oracle-db
+docker exec oracle-db healthcheck.sh
+python -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements.txt
+# Only if backend/.env does not already exist:
+# cp backend/.env.example backend/.env
+# Edit ORACLE_USER, ORACLE_PASSWORD and ORACLE_DSN to match your existing schema.
 
-## Security and integrity
+# Safe upgrade: adds/replaces only the seven named ContextDB PL/SQL objects.
+.venv/bin/python -m scripts.run_sql database/04_plsql_programs.sql
+.venv/bin/python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+```
 
-The design should include:
+In another terminal:
 
-- project-level isolation
-- foreign keys and validation
-- unique constraints
-- input sanitization
-- secure database access
-- protection against SQL injection
-- transaction-safe inserts and updates
+```bash
+cd frontend
+npm ci
+npm run dev
+```
 
-## Future enhancements
+Open **http://localhost:5173**. API documentation: **http://localhost:8000/docs**. Health: **http://localhost:8000/api/health**. Vite proxies `/api` to the backend. `frontend/.env` is unnecessary for the default proxy; `VITE_API_BASE_URL` may contain a public backend URL only.
 
-- semantic/vector search
-- automatic memory extraction from conversations
-- contradiction detection between old and new decisions
-- memory versioning and history tracking
-- project knowledge graph representation
-- autonomous AI task execution backed by persistent memory
+The verified Oracle connection uses `localhost:1521/FREEPDB1`. Existing schema has other coursework tables: ContextDB scopes its checks to its eight named tables. Do not reset or reseed this database.
 
-## Summary
+## New database on another machine (optional)
 
-This project is a practical demonstration of how a relational database can act as the long-term memory for an AI software-engineering workflow. It is intended to be simple, structured, and academic in scope, while still modeling the real problem of context loss across sessions.
+Skip this section when reusing `oracle-db`. Compose starts a **separate new volume**; it does not reuse the existing `oracle-data` volume. Do not start both on port 1521. Choose `ORACLE_PORT=1522` for a parallel new instance and use `localhost:1522/FREEPDB1` in its backend configuration.
+
+1. Copy `.env.example` to root `.env`. Set `ORACLE_ADMIN_PASSWORD`, `ORACLE_APP_PASSWORD` to distinct strong local secrets. `ORACLE_APP_USER=contextdb` names the application schema.
+2. Start the persistent instance:
+
+```bash
+docker compose up -d
+docker compose ps
+docker compose exec oracle healthcheck.sh
+```
+
+The pinned image is `gvenzl/oracle-free:23.26.3-slim`; read its [maintainer setup and supported tags](https://github.com/gvenzl/oci-oracle-free) and the [Oracle Database Free license terms](https://www.oracle.com/downloads/licenses/oracle-free-license.html) before use. The new image/Compose path was configuration-checked, not downloaded and booted during verification; tests used existing Oracle 23.26.2. The image creates `APP_USER` on first initialization. Environment changes do not change passwords inside an already initialized volume.
+
+3. Ensure the application schema has scoped object-creation permissions. Connect as the local container administrator (no password in shell history):
+
+```bash
+docker compose exec oracle sqlplus / as sysdba
+```
+
+```sql
+ALTER SESSION SET CONTAINER=FREEPDB1;
+GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE PROCEDURE, CREATE TRIGGER TO contextdb;
+ALTER USER contextdb QUOTA 100M ON USERS;
+EXIT;
+```
+
+The API uses the application schema, never SYS/SYSTEM. Change `contextdb` above only if you selected another schema name.
+
+4. Copy `backend/.env.example` to `backend/.env`; set the app username/password and host DSN. Install Python dependencies as above, then initialize **only the new empty schema**:
+
+```bash
+.venv/bin/python -m scripts.run_sql database/01_schema.sql
+.venv/bin/python -m scripts.run_sql database/02_seed.sql
+.venv/bin/python -m scripts.run_sql database/04_plsql_programs.sql
+.venv/bin/python -m scripts.run_sql database/06_verification.sql
+```
+
+`01_schema.sql` refuses any existing tables; `02_seed.sql` refuses populated application tables. Neither script drops existing data. Use `04` for upgrades. Never use `docker compose down -v` on data you want to keep.
+
+Without host SQL*Plus, copy the SQL files into the container and run them interactively:
+
+```bash
+docker compose cp database oracle:/tmp/contextdb-database
+docker compose exec oracle sqlplus contextdb@//localhost:1521/FREEPDB1
+# Enter the app password at the prompt, then:
+# @/tmp/contextdb-database/01_schema.sql
+```
+
+Each script ends with `EXIT`; reconnect for the next script. For existing `oracle-db`, use `docker cp database oracle-db:/tmp/contextdb-database` and `docker exec -it oracle-db sqlplus YOUR_APP_USER@//localhost:1521/FREEPDB1`.
+
+## Tests and demonstrations
+
+```bash
+# Validation/unit suite; Oracle tests skip unless explicitly enabled.
+.venv/bin/python -m pytest backend/tests -q
+# Real Oracle integration; temporary projects are cleaned up.
+RUN_ORACLE_TESTS=1 .venv/bin/python -m pytest backend/tests -q
+
+# SQL*Plus demonstrations (rollback-only data changes)
+.venv/bin/python -m scripts.run_sql database/03_crud_and_queries.sql
+.venv/bin/python -m scripts.run_sql database/05_plsql_demo.sql
+.venv/bin/python -m scripts.run_sql database/06_verification.sql
+
+# Live HTTP smoke test; run the backend first.
+.venv/bin/python -m scripts.http_smoke
+
+cd frontend
+npm test
+npm run build
+# React DOM -> live HTTP -> Oracle tests; backend must be running.
+RUN_LIVE_TESTS=1 npm test
+npm audit
+```
+
+Optional clean-install verification from the repository root:
+
+```bash
+.venv/bin/python -m scripts.verify_clean
+```
+
+This uses `docker exec` SYS access to create a randomly named temporary user in `FREEPDB1`, runs all six scripts, and drops **only that temporary user** in cleanup. Set `ORACLE_CONTAINER` for a differently named local container. The configured DSN must point to that container's FREEPDB1.
+
+See [verification evidence](docs/VERIFICATION.md) for results and limits, and [the demo walkthrough](docs/DEMO_WALKTHROUGH.md) for the viva narrative.
+
+## Configuration and troubleshooting
+
+- **503 / Oracle unavailable:** run `docker ps -a`, start the existing container, then run its `healthcheck.sh`. Check the three `ORACLE_*` values in `backend/.env`. Server diagnostics log error codes without credentials.
+- **Connected but list endpoints fail:** install `04_plsql_programs.sql` with the app schema and inspect `USER_ERRORS`; grant CREATE PROCEDURE/TRIGGER if needed.
+- **Port in use:** use the existing container, or change the new Compose port and DSN. Vite's API proxy expects port 8000.
+- **Thin mode errors:** use the installed `python-oracledb`; no Oracle Instant Client is required by the API. SQL*Plus installation is separate.
+- **Frontend fetch/CORS:** the default Vite proxy needs no frontend env. For a separate backend origin, set `VITE_API_BASE_URL` and list the frontend origin in backend `CORS_ORIGINS`. Restart Vite after env changes.
+- **Copy context denied:** the prompt remains selectable; copy manually. Clipboard permissions are browser-dependent and generally require localhost or HTTPS.
+- **Timestamps:** original Oracle TIMESTAMP columns contain no zone. This verified database uses UTC; API sessions write UTC and serialize with `+00:00`. The UI displays dates in the browser's local zone. Existing data from a different historical timezone needs an explicit migration before using this convention.
+- **Refreshes/deep links:** Vite handles SPA routes. If serving the production `frontend/dist` directory elsewhere, configure history fallback to `index.html` and `/api` proxying separately. `npm run preview` serves a build but does not provide the development `/api` proxy.
+- **Local scope:** this is a trusted local course app, without authentication or per-user authorization. Keep FastAPI/Vite bound to loopback. Add authentication before exposing it to other machines.
+
+## Understand and extend
+
+[Architecture](docs/ARCHITECTURE.md) · [Database and ERD](docs/DATABASE.md) · [API](docs/API.md) · [Final course report](docs/Final_Report.md) · [Change map](docs/CHANGE_MAP.md)
+
+Original intermediate report and original SQL output captures remain available unchanged for historical evidence. New evidence is in `docs/evidence/`.
