@@ -1,2 +1,0 @@
-PASS: real HTTP project/task/memory lifecycle, assignment/status procedures, reopen, ranking, and deletion
-PASS: all eight application table counts restored after cleanup: {'users': 10, 'agents': 10, 'projects': 11, 'sessions': 12, 'tasks': 14, 'memories': 17, 'tags': 10, 'memory_tags': 22}

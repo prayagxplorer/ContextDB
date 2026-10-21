@@ -46,18 +46,6 @@ BEGIN
 EXCEPTION WHEN NO_DATA_FOUND THEN raise_application_error(-20005,'Project not found');
 END;
 /
-CREATE OR REPLACE PROCEDURE sp_project_task_report(p_project_id NUMBER) AS
- CURSOR project_tasks IS SELECT task_id,title,status FROM tasks WHERE project_id=p_project_id ORDER BY task_id;
- v_total NUMBER:=0; v_open NUMBER;
-BEGIN
- v_open:=fn_project_open_task_count(p_project_id);
- FOR task_row IN project_tasks LOOP
-  v_total:=v_total+1;
-  DBMS_OUTPUT.PUT_LINE(task_row.task_id||' | '||task_row.status||' | '||task_row.title);
- END LOOP;
- DBMS_OUTPUT.PUT_LINE('Total: '||v_total||'; open (including blocked): '||v_open);
-END;
-/
 CREATE OR REPLACE TRIGGER trg_memories_updated_at
  BEFORE UPDATE ON memories FOR EACH ROW
 BEGIN
@@ -80,14 +68,20 @@ BEGIN
  END IF;
 END;
 /
--- SQL*Plus treats compilation warnings as success; explicitly reject invalid programs.
-DECLARE v_errors NUMBER;
+-- SQL*Plus treats compilation warnings as success; require all six live objects.
+DECLARE v_errors NUMBER; v_valid NUMBER;
 BEGIN
  SELECT COUNT(*) INTO v_errors FROM user_errors WHERE name IN
  ('SP_ASSIGN_TASK','SP_UPDATE_TASK_STATUS','FN_MEMORY_RELEVANCE','FN_PROJECT_OPEN_TASK_COUNT',
- 'SP_PROJECT_TASK_REPORT','TRG_MEMORIES_UPDATED_AT','TRG_TASKS_COMPLETION_STAMP');
- IF v_errors>0 THEN raise_application_error(-20009,'PL/SQL compilation failed; inspect USER_ERRORS'); END IF;
+ 'TRG_MEMORIES_UPDATED_AT','TRG_TASKS_COMPLETION_STAMP');
+ SELECT COUNT(*) INTO v_valid FROM user_objects WHERE status='VALID' AND
+ ((object_name IN ('SP_ASSIGN_TASK','SP_UPDATE_TASK_STATUS') AND object_type='PROCEDURE') OR
+  (object_name IN ('FN_MEMORY_RELEVANCE','FN_PROJECT_OPEN_TASK_COUNT') AND object_type='FUNCTION') OR
+  (object_name IN ('TRG_MEMORIES_UPDATED_AT','TRG_TASKS_COMPLETION_STAMP') AND object_type='TRIGGER'));
+ IF v_errors>0 OR v_valid<>6 THEN
+  raise_application_error(-20009,'PL/SQL installation incomplete; inspect USER_ERRORS and USER_OBJECTS');
+ END IF;
 END;
 /
-SELECT object_name,object_type,status FROM user_objects WHERE object_name IN ('SP_ASSIGN_TASK','SP_UPDATE_TASK_STATUS','SP_PROJECT_TASK_REPORT','FN_MEMORY_RELEVANCE','FN_PROJECT_OPEN_TASK_COUNT','TRG_MEMORIES_UPDATED_AT','TRG_TASKS_COMPLETION_STAMP') ORDER BY object_type,object_name;
+SELECT object_name,object_type,status FROM user_objects WHERE object_name IN ('SP_ASSIGN_TASK','SP_UPDATE_TASK_STATUS','FN_MEMORY_RELEVANCE','FN_PROJECT_OPEN_TASK_COUNT','TRG_MEMORIES_UPDATED_AT','TRG_TASKS_COMPLETION_STAMP') ORDER BY object_type,object_name;
 EXIT;
