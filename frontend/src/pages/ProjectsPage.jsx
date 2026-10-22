@@ -231,7 +231,7 @@ function ProjectMemoryScore({ projectId }) {
   }
 
   return (
-    <div>
+    <>
       <Button
         variant="outline"
         disabled={busy}
@@ -246,7 +246,7 @@ function ProjectMemoryScore({ projectId }) {
           {error}
         </p>
       )}
-    </div>
+    </>
   );
 }
 
@@ -324,8 +324,8 @@ export function ProjectDetailPage() {
                     <span>Stored memories</span>
                   </div>
                 </div>
-                <ProjectMemoryScore key={p.project_id} projectId={p.project_id} />
                 <div className="row">
+                  <ProjectMemoryScore key={p.project_id} projectId={p.project_id} />
                   <Button asChild>
                     <Link to={`/context?project=${p.project_id}`}>
                       Build context
