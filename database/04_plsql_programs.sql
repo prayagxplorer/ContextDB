@@ -32,6 +32,19 @@ BEGIN
 EXCEPTION WHEN NO_DATA_FOUND THEN raise_application_error(-20004,'Memory not found');
 END;
 /
+CREATE OR REPLACE FUNCTION fn_project_memory_score_total(p_project_id NUMBER) RETURN NUMBER AS
+ CURSOR project_memories IS SELECT memory_id FROM memories WHERE project_id=p_project_id;
+ v_total NUMBER:=0; v_id NUMBER;
+BEGIN
+ BEGIN
+  SELECT project_id INTO v_id FROM projects WHERE project_id=p_project_id;
+ EXCEPTION WHEN NO_DATA_FOUND THEN raise_application_error(-20005,'Project not found'); END;
+ FOR memory_row IN project_memories LOOP
+  v_total:=v_total+fn_memory_relevance(memory_row.memory_id);
+ END LOOP;
+ RETURN v_total;
+END;
+/
 CREATE OR REPLACE FUNCTION fn_project_open_task_count(p_project_id NUMBER) RETURN NUMBER AS
  v_count NUMBER; v_id NUMBER;
 BEGIN

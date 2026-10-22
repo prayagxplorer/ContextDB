@@ -209,6 +209,47 @@ export default function ProjectsPage() {
     </>
   );
 }
+function ProjectMemoryScore({ projectId }) {
+  const [total, setTotal] = useState(null),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+
+  async function calculate() {
+    setBusy(true);
+    setError("");
+    setTotal(null);
+    try {
+      const result = await api(`/projects/${projectId}/memory-score`, {
+        cache: "no-store",
+      });
+      setTotal(result.total_memory_score);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <Button
+        variant="outline"
+        disabled={busy}
+        aria-busy={busy}
+        onClick={calculate}
+      >
+        {busy ? "Calculating…" : "Calculate memory score"}
+      </Button>
+      {total !== null && <p role="status">Total memory score: {total}</p>}
+      {error && (
+        <p role="alert" className="form-error">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function ProjectDetailPage() {
   const { projectId } = useParams(),
     { version, refresh } = useWorkspace(),
@@ -283,6 +324,7 @@ export function ProjectDetailPage() {
                     <span>Stored memories</span>
                   </div>
                 </div>
+                <ProjectMemoryScore key={p.project_id} projectId={p.project_id} />
                 <div className="row">
                   <Button asChild>
                     <Link to={`/context?project=${p.project_id}`}>

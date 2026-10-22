@@ -102,6 +102,20 @@ def project_detail(project_id: int):
         return one(c, repo.PROJECT_SQL + " WHERE p.project_id=:id", id=project_id)
 
 
+@app.get("/api/projects/{project_id}/memory-score")
+def project_memory_score(project_id: int):
+    with connection() as conn, conn.cursor() as c:
+        result = one(
+            c,
+            "SELECT fn_project_memory_score_total(:id) total_memory_score FROM dual",
+            id=project_id,
+        )
+        return {
+            "project_id": project_id,
+            "total_memory_score": result["total_memory_score"],
+        }
+
+
 @app.post("/api/projects", status_code=201)
 def create_project(item: ProjectCreate):
     with connection() as conn, conn.cursor() as c:
