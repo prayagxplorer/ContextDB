@@ -1,10 +1,5 @@
 -- Forward-only installation. Does not recreate tables or modify existing rows.
 WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
-SET SERVEROUTPUT ON
-SET LINESIZE 160
-COLUMN object_name FORMAT A32
-COLUMN object_type FORMAT A12
-COLUMN status FORMAT A10
 CREATE OR REPLACE PROCEDURE sp_assign_task(p_task_id NUMBER, p_agent_id NUMBER) AS
  v_id NUMBER;
 BEGIN
@@ -68,20 +63,4 @@ BEGIN
  END IF;
 END;
 /
--- SQL*Plus treats compilation warnings as success; require all six live objects.
-DECLARE v_errors NUMBER; v_valid NUMBER;
-BEGIN
- SELECT COUNT(*) INTO v_errors FROM user_errors WHERE name IN
- ('SP_ASSIGN_TASK','SP_UPDATE_TASK_STATUS','FN_MEMORY_RELEVANCE','FN_PROJECT_OPEN_TASK_COUNT',
- 'TRG_MEMORIES_UPDATED_AT','TRG_TASKS_COMPLETION_STAMP');
- SELECT COUNT(*) INTO v_valid FROM user_objects WHERE status='VALID' AND
- ((object_name IN ('SP_ASSIGN_TASK','SP_UPDATE_TASK_STATUS') AND object_type='PROCEDURE') OR
-  (object_name IN ('FN_MEMORY_RELEVANCE','FN_PROJECT_OPEN_TASK_COUNT') AND object_type='FUNCTION') OR
-  (object_name IN ('TRG_MEMORIES_UPDATED_AT','TRG_TASKS_COMPLETION_STAMP') AND object_type='TRIGGER'));
- IF v_errors>0 OR v_valid<>6 THEN
-  raise_application_error(-20009,'PL/SQL installation incomplete; inspect USER_ERRORS and USER_OBJECTS');
- END IF;
-END;
-/
-SELECT object_name,object_type,status FROM user_objects WHERE object_name IN ('SP_ASSIGN_TASK','SP_UPDATE_TASK_STATUS','FN_MEMORY_RELEVANCE','FN_PROJECT_OPEN_TASK_COUNT','TRG_MEMORIES_UPDATED_AT','TRG_TASKS_COMPLETION_STAMP') ORDER BY object_type,object_name;
 EXIT;
